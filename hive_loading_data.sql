@@ -107,10 +107,3 @@ LOAD DATA LOCAL INPATH '/home/maria_dev/input/imd.csv' INTO TABLE dimimd;
 LOAD DATA LOCAL INPATH '/home/maria_dev/input/LSOA.csv' INTO TABLE dimlsoa;
 LOAD DATA LOCAL INPATH '/home/maria_dev/input/outcomes.csv' INTO TABLE dimoutcome;
 LOAD DATA LOCAL INPATH '/home/maria_dev/input/police_stations.csv' INTO TABLE dimpolicestation;
-
-
---Get the number of occurences for each ratings
--- SELECT rating, count(rating) as total_occurences
---FROM Ratings
---GROUP BY rating
---ORDER BY total_occurences DESC;

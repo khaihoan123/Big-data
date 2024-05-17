@@ -28,8 +28,9 @@ month_season = {
 try:
     spark = SparkSession.builder.appName("FileTransformation").config("spark.driver.memory", "20g").getOrCreate()
 
-    df = spark.read.csv(street_files, header=True).sort('Month', ascending=False )
-    df = df.select('Crime ID', 'Month', 'Crime type', 'Reported by','LSOA code', 'LSOA name', 'Last outcome category')
+    df = spark.read.csv(street_files, header=True, inferSchema=True).sort('Month', ascending=False )
+    df.printSchema() 
+    df = df.select('Crime ID', 'Month', 'Longitude', 'Latitude', 'Crime type', 'Reported by','LSOA code', 'LSOA name', 'Last outcome category')
     imd_2010 = pd.read_excel(io = 'C:/Users/LabStudent-55-706949/Downloads/AdjustedIMD2010scoresfor2011LSOAs.xlsx',  sheet_name = 'England', skiprows=[0,1])
     imd_2010 = spark.createDataFrame(imd_2010)
     
@@ -48,8 +49,8 @@ try:
         df = df.dropDuplicates(['Crime ID'])
         print('number of rows after drop duplicate rows by Crime ID: ', df.count())
     
-    # cols_with_nulls = [x for x in df.columns if df.filter(F.col(x).isNull()).count() > 0]
-    # print('Columns still have null value: ', str(cols_with_nulls))
+    cols_with_nulls = [x for x in df.columns if df.filter(F.col(x).isNull()).count() > 0]
+    print('Columns still have null value: ', str(cols_with_nulls))
 
     imd_2010 = imd_2010.withColumn('year', lit('2010')) \
         .withColumn('id', F.format_string("%s-%s", "LSOA11CD", lit('2010'))) \
@@ -103,8 +104,10 @@ try:
             .withColumn("crime_type_id", crime_type.id) \
             .withColumn("outcome_id", outcomes.id) \
             .withColumn('imd_id', imd.id)
-    df = df.select('Crime ID', 'Month', 'crime_type_id', 'LSOA code', 'police_station_id', 'outcome_id', 'imd_id')
-    print('aaaaaaaaaa')
+    df = df.select('Crime ID', 'Month', 'Longitude','Latitude', 'crime_type_id', 'LSOA code', 'police_station_id', 'outcome_id', 'imd_id')
+
+    df.show()
+    time.show()
     df.toPandas().to_csv('C:/Users/LabStudent-55-706949/Downloads/input/fact_table.csv', index=False)
     police_stations.toPandas().to_csv('C:/Users/LabStudent-55-706949/Downloads/input/police_stations.csv', index=False)
     crime_type.toPandas().to_csv('C:/Users/LabStudent-55-706949/Downloads/input/crime_type.csv', index=False)
